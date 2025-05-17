@@ -404,6 +404,37 @@ print(essentia.__version__)
 print(tf.__version__)
 ```
 
+## Important Notes
+
+### TensorFlow and NumPy Compatibility Issues
+
+TensorFlow 2.12.0 is incompatible with NumPy 2.0+. This is a critical compatibility issue that can cause confusing errors if not addressed properly. When installing packages that depend on NumPy, they might automatically upgrade NumPy to an incompatible version, causing TensorFlow to fail.
+
+To avoid this issue:
+- Always explicitly specify the NumPy version when installing packages: `pip install numpy>=1.23.5,<1.24`
+- When installing other packages, use the `--no-deps` flag if they might pull in a newer NumPy version, then manually install the dependencies with compatible versions
+- If you encounter errors after installing new packages, check your NumPy version with `pip show numpy` and downgrade if necessary: `pip install numpy>=1.23.5,<1.24 --force-reinstall`
+
+Common error messages that indicate NumPy compatibility issues:
+- `ImportError: cannot import name '_FlattenInputsProcessor' from 'tensorflow.python.framework.ops'`
+- `AttributeError: module 'numpy' has no attribute 'float'`
+- `TypeError: Descriptors cannot not be created directly`
+
+### GPU Support for TensorFlow
+
+The instructions in this guide use the pre-built TensorFlow C API for CPU. If you need GPU support for better performance, you'll need to compile TensorFlow from source instead of using the pre-built binaries.
+
+To build TensorFlow with GPU support:
+1. Install CUDA and cuDNN according to the TensorFlow documentation for version 2.12.0
+2. Clone the TensorFlow repository: `git clone https://github.com/tensorflow/tensorflow.git`
+3. Checkout the appropriate version: `cd tensorflow && git checkout v2.12.0`
+4. Configure the build with GPU support: `./configure`
+5. Build TensorFlow: `bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package`
+6. Create the pip package: `./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg`
+7. Install the pip package: `pip install /tmp/tensorflow_pkg/tensorflow-*.whl`
+
+For detailed instructions on building TensorFlow with GPU support, refer to the [TensorFlow documentation](https://www.tensorflow.org/install/source).
+
 ## Troubleshooting
 
 ### Common Issues
