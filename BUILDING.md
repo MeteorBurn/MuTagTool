@@ -48,32 +48,30 @@ The build process consists of the following stages:
 
 ## Configuration Settings
 
-Before starting the installation, you may want to customize these settings based on your environment:
+Before starting the installation, you should be aware of the following key configuration settings that will be used throughout the process:
 
-```bash
-# Base paths and settings
-BASE_PROJECT_DIR="${HOME}/essentia"  # Base directory for local installations, sources, venv
-GLOBAL_INSTALL_PREFIX="/usr/local"   # Directory for FFmpeg, TF C API, Essentia C++
+### Installation Directories
+- **Base Project Directory**: `~/essentia` - This is where all source code, virtual environments, and local installations will be stored
+- **Global Install Prefix**: `/usr/local` - This is where FFmpeg, TensorFlow C API, and Essentia C++ libraries will be installed
 
-# FFmpeg settings
-FFMPEG_VERSION="n7.1.1"              # FFmpeg version
-FFMPEG_SRC_DIR_NAME="ffmpeg_src_${FFMPEG_VERSION}"  # Relative to BASE_PROJECT_DIR
+### FFmpeg Configuration
+- **Version**: n7.1.1
+- **Source Directory**: `~/essentia/ffmpeg_src_n7.1.1`
 
-# Python settings
-PYTHON_VERSION="3.10"                # Target Python version
-VENV_NAME="essentia_env_py${PYTHON_VERSION}"
-VENV_DIR_NAME="${VENV_NAME}"         # Relative to BASE_PROJECT_DIR
-PYTHON_EXECUTABLE_CMD="python${PYTHON_VERSION}"  # Command to invoke python
+### Python Configuration
+- **Version**: 3.10
+- **Virtual Environment**: `~/essentia/essentia_env_py3.10`
 
-# TensorFlow C API settings
-TF_C_API_VERSION="2.12.0"
-TF_C_API_URL="https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-${TF_C_API_VERSION}.tar.gz"
+### TensorFlow Configuration
+- **Version**: 2.12.0
+- **C API URL**: The pre-built TensorFlow C API will be downloaded from Google's storage servers
 
-# Essentia settings
-ESSENTIA_GIT_URL="https://github.com/wo80/essentia.git"  # Special fork with cmake support
-ESSENTIA_GIT_BRANCH="cmake"
-ESSENTIA_SRC_DIR_NAME="essentia_src_${ESSENTIA_GIT_BRANCH}"  # Relative to BASE_PROJECT_DIR
-```
+### Essentia Configuration
+- **Repository**: https://github.com/wo80/essentia.git
+- **Branch**: cmake
+- **Source Directory**: `~/essentia/essentia_src_cmake`
+
+You may need to adjust these settings based on your specific requirements. For example, if you want to install the libraries in a different location, you would need to modify the paths accordingly in the commands in the following sections.
 
 ## Detailed Installation Steps
 
