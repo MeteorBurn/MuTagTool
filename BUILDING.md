@@ -22,7 +22,7 @@ This guide explains how to build Essentia with TensorFlow and FFmpeg 7.7.1 suppo
 - CMake
 
 ### Python Packages
-- NumPy 1.23.x (⚠️ **IMPORTANT**: TensorFlow 2.12.0 is incompatible with NumPy 2.0+)
+- NumPy 1.23.x
 - PyYAML 5.4 or later
 - Six 1.15 or later
 - AV 10.x
