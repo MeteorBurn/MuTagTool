@@ -108,22 +108,22 @@ This step clones, configures, compiles, and installs FFmpeg 7.7.1:
 
 ```bash
 # Create directories
-mkdir -p "${BASE_PROJECT_DIR}"
-cd "${BASE_PROJECT_DIR}"
+mkdir -p ~/essentia
+cd ~/essentia
 
 # Clone FFmpeg repository
-echo "Cloning FFmpeg repository (version ${FFMPEG_VERSION})..."
-if [ -d "${FFMPEG_SRC_DIR_NAME}" ]; then
+echo "Cloning FFmpeg repository (version n7.1.1)..."
+if [ -d "ffmpeg_src_n7.1.1" ]; then
     echo "FFmpeg source directory already exists. Removing it for a fresh clone."
-    rm -rf "${FFMPEG_SRC_DIR_NAME}"
+    rm -rf ffmpeg_src_n7.1.1
 fi
 
-git clone --depth 1 --branch "${FFMPEG_VERSION}" https://git.ffmpeg.org/ffmpeg.git "${FFMPEG_SRC_DIR_NAME}"
+git clone --depth 1 --branch n7.1.1 https://git.ffmpeg.org/ffmpeg.git ffmpeg_src_n7.1.1
 
 # Configure FFmpeg build
-cd "${FFMPEG_SRC_DIR_NAME}"
+cd ffmpeg_src_n7.1.1
 ./configure \
-    --prefix="${GLOBAL_INSTALL_PREFIX}" \
+    --prefix=/usr/local \
     --enable-gpl --enable-nonfree --enable-shared --disable-static --disable-debug \
     --enable-libmp3lame --enable-libfdk-aac --enable-libopus \
     --enable-libvorbis --enable-libtwolame --enable-libgsm \
@@ -139,7 +139,7 @@ sudo make install
 sudo ldconfig
 
 # Verify FFmpeg installation
-if ! command -v "${GLOBAL_INSTALL_PREFIX}/bin/ffmpeg"; then
+if ! command -v /usr/local/bin/ffmpeg; then
     if ! command -v ffmpeg; then
         echo "FFmpeg command not found after installation."
         exit 1
@@ -163,30 +163,27 @@ This step creates a Python 3.10 virtual environment:
 
 ```bash
 # Ensure the base directory exists
-mkdir -p "${BASE_PROJECT_DIR}"
-
-# Define the virtual environment path
-VENV_FULL_PATH="${BASE_PROJECT_DIR}/${VENV_DIR_NAME}"
+mkdir -p ~/essentia
 
 # Check if Python executable is available
-if ! command -v "${PYTHON_EXECUTABLE_CMD}"; then
-   echo "${PYTHON_EXECUTABLE_CMD} could not be found. (Is it installed?)"
+if ! command -v python3.10; then
+   echo "python3.10 could not be found. (Is it installed?)"
    exit 1
 fi
 
 # Create Python virtual environment
-if [ ! -d "${VENV_FULL_PATH}" ]; then
-    echo "Creating Python virtual environment using '${PYTHON_EXECUTABLE_CMD}'..."
-    "${PYTHON_EXECUTABLE_CMD}" -m venv "${VENV_FULL_PATH}"
+if [ ! -d "~/essentia/essentia_env_py3.10" ]; then
+    echo "Creating Python virtual environment using 'python3.10'..."
+    python3.10 -m venv ~/essentia/essentia_env_py3.10
 else
-    echo "Using existing virtual environment at '${VENV_FULL_PATH}'."
+    echo "Using existing virtual environment at '~/essentia/essentia_env_py3.10'."
 fi
 
 # Upgrade pip in the virtual environment
-"${VENV_FULL_PATH}/bin/python" -m pip install --upgrade pip
+~/essentia/essentia_env_py3.10/bin/python -m pip install --upgrade pip
 
 echo "Python virtual environment setup finished."
-echo "To activate in your current terminal: source '${VENV_FULL_PATH}/bin/activate'"
+echo "To activate in your current terminal: source '~/essentia/essentia_env_py3.10/bin/activate'"
 ```
 
 **Explanation:**
@@ -202,15 +199,12 @@ This step downloads and installs the TensorFlow C API:
 # Create temporary download directory
 TMP_DOWNLOAD_DIR=$(mktemp -d -p "/tmp" -t tf_c_api_dl_XXXXXX)
 
-# Define TensorFlow C API details
-TF_C_API_FILENAME="libtensorflow-cpu-linux-x86_64-${TF_C_API_VERSION}.tar.gz"
-
 # Download TensorFlow C API
 cd "${TMP_DOWNLOAD_DIR}"
-wget -nv -O "${TF_C_API_FILENAME}" "${TF_C_API_URL}"
+wget -nv -O "libtensorflow-cpu-linux-x86_64-2.12.0.tar.gz" "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.12.0.tar.gz"
 
 # Extract TensorFlow C API to the global install prefix
-sudo tar --no-same-owner -C "${GLOBAL_INSTALL_PREFIX}" -xzf "${TF_C_API_FILENAME}"
+sudo tar --no-same-owner -C /usr/local -xzf "libtensorflow-cpu-linux-x86_64-2.12.0.tar.gz"
 
 # Update linker cache
 sudo ldconfig
@@ -231,23 +225,20 @@ This step clones the Essentia repository from the fork with cmake support:
 
 ```bash
 # Ensure the base directory exists
-mkdir -p "${BASE_PROJECT_DIR}"
-
-# Define Essentia source directory
-ESSENTIA_SRC_FULL_PATH="${BASE_PROJECT_DIR}/${ESSENTIA_SRC_DIR_NAME}"
+mkdir -p ~/essentia
 
 # Clone Essentia repository
-cd "${BASE_PROJECT_DIR}"
-if [ -d "${ESSENTIA_SRC_FULL_PATH}" ]; then
+cd ~/essentia
+if [ -d "essentia_src_cmake" ]; then
     echo "Essentia source directory already exists. Removing it for a fresh clone."
-    rm -rf "${ESSENTIA_SRC_FULL_PATH}"
+    rm -rf essentia_src_cmake
 fi
 
 # Clone the specific fork that supports cmake and FFmpeg 7.7.1
-git clone --depth 1 --branch "${ESSENTIA_GIT_BRANCH}" "${ESSENTIA_GIT_URL}" "${ESSENTIA_SRC_FULL_PATH}"
+git clone --depth 1 --branch cmake https://github.com/wo80/essentia.git essentia_src_cmake
 
 # Initialize and update git submodules
-cd "${ESSENTIA_SRC_FULL_PATH}"
+cd essentia_src_cmake
 git submodule update --init --recursive --jobs "$(nproc)"
 ```
 
@@ -262,20 +253,17 @@ git submodule update --init --recursive --jobs "$(nproc)"
 This step installs the required Python packages in the virtual environment:
 
 ```bash
-# Define the virtual environment path
-VENV_FULL_PATH="${BASE_PROJECT_DIR}/${VENV_DIR_NAME}"
-
 # Create a requirements.txt file
 cat > /tmp/essentia_requirements.txt << EOF
 numpy>=1.23.5,<1.24
 pyyaml>=5.4,<7.0
 six>=1.15,<2.0
-tensorflow==2.12.0 # Should match TF_C_API_VERSION from settings
+tensorflow==2.12.0
 av>=10.0,<11.0
 EOF
 
 # Activate the virtual environment and install Python dependencies
-source "${VENV_FULL_PATH}/bin/activate"
+source ~/essentia/essentia_env_py3.10/bin/activate
 
 # Install packages from requirements.txt
 pip install -r /tmp/essentia_requirements.txt
@@ -299,42 +287,37 @@ deactivate
 This step configures, compiles, and installs Essentia:
 
 ```bash
-# Define paths
-VENV_FULL_PATH="${BASE_PROJECT_DIR}/${VENV_DIR_NAME}"
-ESSENTIA_SRC_FULL_PATH="${BASE_PROJECT_DIR}/${ESSENTIA_SRC_DIR_NAME}"
-ACTUAL_ESSENTIA_BUILD_DIR_NAME="build"
-
 # Activate the virtual environment
-source "${VENV_FULL_PATH}/bin/activate"
+source ~/essentia/essentia_env_py3.10/bin/activate
 
 # Change to Essentia source directory
-cd "${ESSENTIA_SRC_FULL_PATH}"
+cd ~/essentia/essentia_src_cmake
 
 # Remove existing build directory if it exists
-if [ -d "${ACTUAL_ESSENTIA_BUILD_DIR_NAME}" ]; then
-    rm -rf "${ACTUAL_ESSENTIA_BUILD_DIR_NAME}"
+if [ -d "build" ]; then
+    rm -rf build
 fi
 
 # Configure Essentia build using CMake
-cmake -B "${ACTUAL_ESSENTIA_BUILD_DIR_NAME}" \
+cmake -B build \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX="${GLOBAL_INSTALL_PREFIX}" \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
       -DBUILD_SHARED_LIBS=ON \
       -DBUILD_PYTHON_BINDINGS=ON \
       -DUSE_TENSORFLOW=ON \
       -DBUILD_EXAMPLES=ON
 
 # Compile Essentia (C++ and Python bindings)
-cmake --build "${ACTUAL_ESSENTIA_BUILD_DIR_NAME}" --parallel "$(nproc)"
+cmake --build build --parallel "$(nproc)"
 
 # Install Essentia
-sudo cmake --install "${ACTUAL_ESSENTIA_BUILD_DIR_NAME}" --prefix "${GLOBAL_INSTALL_PREFIX}"
+sudo cmake --install build --prefix /usr/local
 
 # Update system linker cache
 sudo ldconfig
 
 # Install Essentia from the .whl file
-cd "${ESSENTIA_SRC_FULL_PATH}/${ACTUAL_ESSENTIA_BUILD_DIR_NAME}/wheel"
+cd ~/essentia/essentia_src_cmake/build/wheel
 pip install --force-reinstall --no-deps essentia-*.whl
 
 # Deactivate the virtual environment (if you want to continue with other steps)
@@ -354,11 +337,8 @@ deactivate
 This step verifies that Essentia and TensorFlow are properly installed:
 
 ```bash
-# Define the virtual environment path
-VENV_FULL_PATH="${BASE_PROJECT_DIR}/${VENV_DIR_NAME}"
-
 # Activate the virtual environment
-source "${VENV_FULL_PATH}/bin/activate"
+source ~/essentia/essentia_env_py3.10/bin/activate
 
 # Check Essentia import and version
 python -c "import essentia; print(f'Essentia version: {essentia.__version__}')"
