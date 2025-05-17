@@ -84,7 +84,7 @@ This step installs all the required system packages using apt:
 sudo apt-get update -qq
 
 # Install required packages
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+sudo apt-get install -y -qq \
     build-essential yasm nasm pkg-config autoconf automake cmake patchelf git libtool wget libyaml-dev \
     libmp3lame-dev libfdk-aac-dev libfaad-dev libopus-dev libvorbis-dev libflac-dev \
     libwavpack-dev libtwolame-dev libgsm1-dev libsndfile1-dev libsamplerate0-dev \
